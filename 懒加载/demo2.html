@@ -1,0 +1,77 @@
+<!--
+  date: 2020-07-08
+  author: hahalang
+  version: 0.0.1
+  title: 懒加载的第二种方式
+  desc: el.getBoundingClientRect().top(元素左上角距离视口顶部的高度) < clientHeight(视口高度)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>懒加载(2)</title>
+  <style>
+    img {
+      height: 450px;
+      display: block;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!--图片地址暂时先保存在data-src这个自定义属性上面-->
+  <img data-src="./img-loop/img/1.jpg" alt="懒加载1" />
+  <img data-src="./img-loop/img/2.png" alt="懒加载2" />
+  <img data-src="./img-loop/img/3.jpg" alt="懒加载3" />
+  <img data-src="./img-loop/img/4.jpg" alt="懒加载4" />
+  <img data-src="./img-loop/img/5.jpg" alt="懒加载5" />
+  <script>
+    const imgs = document.getElementsByTagName('img');
+    // 判断元素是否出现在视口内
+    function isShow(el) {
+      // 视口高度
+      const clientH = window.innerHeight;
+      const bound = el.getBoundingClientRect();
+      // 判断元素左上角到视口顶部的距离是否小于视口高度
+      return bound.top < clientH;
+    };
+
+    // 加载图片
+    function showImg(el) {
+      if(!el.src) {
+        el.src = el.dataset.src;
+      }
+    }
+
+    // 懒加载
+    function lazyLoad() {
+      console.log('加载了');
+      [...imgs].forEach(el => {
+        if(isShow(el)) {
+          showImg(el);
+        }
+      })
+    };
+
+    lazyLoad();
+
+    // 节流函数
+    function throttle(fn, delay) {
+      let timer = null;
+      return () => {
+        if(timer) {
+          return;
+        };
+        timer = setTimeout(() => {
+          fn(imgs);
+          timer = null;
+        }, delay);
+      }
+    };
+
+    window.onscroll = throttle(lazyLoad, 500);
+
+  </script>
+</body>
+</html>
