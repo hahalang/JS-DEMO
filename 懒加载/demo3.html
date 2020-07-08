@@ -1,0 +1,55 @@
+<!--
+  date: 2020-07-08
+  author: hahalang
+  version: 0.0.1
+  title: 懒加载的第三种方式
+  desc: 通过IntersectionObserver这个新API判断
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>懒加载(3)</title>
+    <style>
+      img {
+        height: 450px;
+        display: block;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <!--图片地址暂时先保存在data-src这个自定义属性上面-->
+    <img data-src="./img-loop/img/1.jpg" alt="懒加载1" />
+    <img data-src="./img-loop/img/2.png" alt="懒加载2" />
+    <img data-src="./img-loop/img/3.jpg" alt="懒加载3" />
+    <img data-src="./img-loop/img/4.jpg" alt="懒加载4" />
+    <img data-src="./img-loop/img/5.jpg" alt="懒加载5" />
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        if ("IntersectionObserver" in window) {
+          const imgs = document.getElementsByTagName("img");
+          const imageObserve = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              // 通过该属性判断元素是否出现在视口内
+              if (entry.isIntersecting) {
+                // entry.target能够取得那个dom元素
+                const img = entry.target;
+                img.src = img.dataset.src;
+                // 解除监视
+                imageObserve.unobserve(img);
+              }
+            });
+          });
+          [...imgs].forEach((img) => {
+            // 开启监视每一个元素
+            imageObserve.observe(img);
+          });
+        } else {
+          alert("您的浏览器不支持IntersectionObserver！");
+        }
+      });
+    </script>
+  </body>
+</html>
