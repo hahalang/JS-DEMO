@@ -1,0 +1,65 @@
+<!--
+  date: 2020-07-08
+  author: hahalang
+  version: 0.0.1
+  title: 懒加载的第一种方式
+  desc: offsetTop(图片距离浏览器顶部的距离) < clientHeight(视口高度) + scrollTop(滚动轴距离)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>懒加载(1)</title>
+  <style>
+    img {
+      height: 450px;
+      display: block;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!--图片地址暂时先保存在data-src这个自定义属性上面-->
+  <img data-src="./img-loop/img/1.jpg" alt="懒加载" />
+  <img data-src="./img-loop/img/2.png" alt="懒加载" />
+  <img data-src="./img-loop/img/3.jpg" alt="懒加载" />
+  <img data-src="./img-loop/img/4.jpg" alt="懒加载" />
+  <img data-src="./img-loop/img/5.jpg" alt="懒加载" />
+  <script>
+    const imgs = document.getElementsByTagName('img');
+    function lazyLoad(imgs) {
+      console.log('触发了');
+      // 视口的高度；
+      const clientH = document.documentElement.clientHeight;
+      // 滚动的距离，这里的逻辑判断是为了做兼容性处理；
+      const clientT = document.documentElement.scrollTop || document.body.scrollTop;
+      for(let i = 0; i < imgs.length; i++) {
+        // 逻辑判断，如果视口高度+滚动距离 > 图片到浏览器顶部的距离就去加载；
+        // !imgs[i].src 是避免重复请求，可以把该条件取消试试：可以看到不加该条件的话往回滚动就会重复请求；
+        if(clientH + clientT > imgs[i].offsetTop && !imgs[i].src) {
+          // 使用data-xx的自定义属性可以通过dom元素的dataset.xx取得；
+          imgs[i].src = imgs[i].dataset.src;
+        }
+      }
+    };
+    // 一开始能够加载显示在视口中的图片；
+    lazyLoad(imgs);
+    // 设置节流函数
+    function throttle(fn, delay) {
+      let timer = null;
+      return () => {
+        if(timer) {
+          return;
+        };
+        timer = setTimeout(() => {
+          fn(imgs);
+          timer = null;
+        }, delay)
+      }
+    }
+    // 监听滚动事件，加载后面的图片；
+    window.onscroll = throttle(lazyLoad, 500);
+  </script>
+</body>
+</html>
